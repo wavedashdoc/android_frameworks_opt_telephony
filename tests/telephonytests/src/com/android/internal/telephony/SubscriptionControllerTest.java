@@ -29,6 +29,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.Manifest;
 import android.content.ContentResolver;
@@ -46,6 +47,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import androidx.test.filters.FlakyTest;
 
+import com.android.internal.telephony.uicc.UiccCard;
 import com.android.internal.telephony.uicc.UiccController;
 import com.android.internal.telephony.uicc.UiccSlot;
 
@@ -68,6 +70,8 @@ public class SubscriptionControllerTest extends TelephonyTest {
     private SubscriptionController mSubscriptionControllerUT;
     private MockContentResolver mMockContentResolver;
     private FakeTelephonyProvider mFakeTelephonyProvider;
+    @Mock
+    private UiccCard mUiccCard;
     @Mock
     private UiccSlot mUiccSlot;
     @Mock
@@ -132,6 +136,8 @@ public class SubscriptionControllerTest extends TelephonyTest {
     public void testInsertSim() {
         //verify there is no sim inserted in the SubscriptionManager
         assertEquals(0, mSubscriptionControllerUT.getAllSubInfoCount(mCallingPackage));
+
+        when(UiccController.getInstance().getUiccCardForPhone(0)).thenReturn(mUiccCard);
 
         int slotID = 0;
         //insert one Subscription Info
@@ -343,7 +349,7 @@ public class SubscriptionControllerTest extends TelephonyTest {
 
         // Global settings should be all set.
         assertEquals(-1,  Settings.Global.getInt(mContext.getContentResolver(),
-                Settings.Global.ENHANCED_4G_MODE_ENABLED));
+                Settings.Global.ENHANCED_4G_MODE_ENABLED + subID));
 
         assertEquals(-1,  Settings.Global.getInt(mContext.getContentResolver(),
                 Settings.Global.VT_IMS_ENABLED));
